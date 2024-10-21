@@ -1,0 +1,98 @@
+--1.From the following table, write a SQL query to find those employees who 
+--receive a higher salary than the employee with ID 163. Return first name, last name.
+SELECT E.* FROM EMPLOYEES E
+WHERE SALARY >
+(SELECT SALARY FROM EMPLOYEES WHERE EMPLOYEE_ID = 163);
+
+--2. From the following table, write a SQL query to find out which employees have the same designation 
+--as the employee whose ID is 169. Return first name, last name, department ID and job ID.
+SELECT first_name,last_name,salary,department_id,job_id FROM EMPLOYEES 
+WHERE JOB_ID =
+(SELECT JOB_ID FROM EMPLOYEES WHERE EMPLOYEE_ID = 169);
+
+--3. From the following table, write a SQL query to find those employees whose salary matches the lowest salary of any of 
+--the departments. Return first name, last name and department ID.
+SELECT FIRST_NAME,LAST_NAME,SALARY,DEPARTMENT_ID FROM EMPLOYEES WHERE SALARY IN 
+(SELECT MIN(SALARY) FROM EMPLOYEES GROUP BY DEPARTMENT_ID);
+
+--4. From the following table, write a SQL query to find those employees 
+--who earn more than the average salary. Return employee ID, first name, last name.
+SELECT EMPLOYEE_ID,FIRST_NAME,LAST_NAME
+FROM EMPLOYEES 
+WHERE SALARY >
+(SELECT AVG(SALARY) FROM EMPLOYEES);
+
+--5. From the following table, write a SQL query to find those employees who report to that 
+--manager whose first name is ‘Payam’. Return first name, last name, employee ID and salary.
+SELECT FIRST_NAME,LAST_NAME,EMPLOYEE_ID,SALARY 
+FROM EMPLOYEES 
+WHERE MANAGER_ID = 
+(SELECT EMPLOYEE_ID FROM EMPLOYEES WHERE FIRST_NAME = 'Payam');
+
+--6.From the following tables, write a SQL query to find all those employees who work
+--in the Finance department. Return department ID, name (first), job ID and department name.
+SELECT DEPARTMENT_ID,FIRST_NAME,JOB_ID,'Finance' as DEPARTMENT_NAME
+FROM EMPLOYEES 
+WHERE DEPARTMENT_ID =
+(SELECT DISTINCT E.DEPARTMENT_ID FROM EMPLOYEES E 
+INNER JOIN DEPARTMENTS D
+ON E.DEPARTMENT_ID=D.DEPARTMENT_ID
+WHERE DEPARTMENT_NAME = 'Finance');
+
+--7.From the following table, write a SQL query to find the employee 
+--whose salary is 3000 and reporting person’s ID is 121. Return all fields.
+SELECT E.* FROM EMPLOYEES E
+WHERE SALARY = 3000 AND MANAGER_ID =121;
+
+--8.From the following table, write a SQL query to find those employees whose 
+--ID matches any of the numbers 134, 159 and 183. Return all the fields.  
+SELECT E.* FROM EMPLOYEES E
+WHERE EMPLOYEE_ID IN (134,159,183);
+
+--9. From the following table, write a SQL query to find those employees whose salary is in the range of 1000, 
+--and 3000 (Begin and end values have included.). Return all the fields.
+SELECT E.* FROM EMPLOYEES E
+WHERE SALARY BETWEEN 1000 AND 3000;
+
+--10.From the following table and write a SQL query to find those employees 
+--whose salary falls within the range of the smallest salary and 2500. Return all the fields.
+SELECT E.* FROM EMPLOYEES E WHERE SALARY BETWEEN
+(SELECT MIN(SALARY) FROM EMPLOYEES) AND 2500;
+
+--11.From the following tables, write a SQL query to find those employees who do not work in the departments where managers’ IDs are
+--between 100 and 200 (Begin and end values are included.). Return all the fields of the employeess.
+SELECT E.* FROM EMPLOYEES E
+WHERE DEPARTMENT_ID NOT IN
+(SELECT DISTINCT DEPARTMENT_ID FROM DEPARTMENTS WHERE MANAGER_ID BETWEEN 100 AND 200);
+
+--12.From the following table, write a SQL query to find those employees who 
+--get second-highest salary. Return all the fields of the employees.
+SELECT E.* FROM EMPLOYEES E WHERE SALARY =
+(SELECT MAX(SALARY) FROM EMPLOYEES WHERE 
+SALARY < (SELECT MAX(SALARY) FROM EMPLOYEES));
+
+--13.From the following tables, write a SQL query to find those employees who work in the same department as ‘Clara’. 
+--Exclude all those records where first name is ‘Clara’. Return first name, last name and hire date.
+SELECT FIRST_NAME,LAST_NAME,HIRE_DATE FROM EMPLOYEES WHERE DEPARTMENT_ID =
+(SELECT DEPARTMENT_ID FROM EMPLOYEES WHERE FIRST_NAME = 'Clara') AND FIRST_NAME<>'Clara';
+
+--14. From the following tables, write a SQL query to find those employees who work in a department where the employee’s 
+--first name contains the letter 'T'. Return employee ID, first name and last name.
+SELECT EMPLOYEE_ID,FIRST_NAME,LAST_NAME FROM EMPLOYEES 
+WHERE DEPARTMENT_ID IN(
+SELECT DISTINCT DEPARTMENT_ID FROM EMPLOYEES WHERE FIRST_NAME LIKE 'T%');
+
+--15.From the following tables, write a SQL query to find those employees who 
+--earn more than the average salary and work in the same department as 
+--an employee whose first name contains the letter 'J'. Return employee ID, first name and salary.
+
+WITH AVG_SALARY AS (
+SELECT AVG(SALARY) AS AVERAGE_SALARY FROM EMPLOYEES)
+SELECT EMPLOYEE_ID,FIRST_NAME,SALARY FROM EMPLOYEES 
+JOIN AVG_SALARY ON SALARY>AVERAGE_SALARY
+WHERE DEPARTMENT_ID IN (
+SELECT DISTINCT DEPARTMENT_ID FROM EMPLOYEES WHERE FIRST_NAME LIKE 'J%');
+
+
+
+
