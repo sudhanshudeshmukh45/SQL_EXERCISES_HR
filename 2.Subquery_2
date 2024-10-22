@@ -1,0 +1,142 @@
+--16. From the following table, write a SQL query to find those employees whose
+--department is located at ‘Toronto’. Return first name, last name, employee ID, job ID.
+select first_name,last_name,employee_id,job_id from employees 
+where department_id =
+(select department_id from departments d
+inner join locations l on d.location_id=l.location_id
+where city='Toronto');
+
+--17. From the following table, write a SQL query to find those employees whose salary is lower 
+--than that of employees whose job title is ‘MK_MAN’. Return employee ID, first name, last name, job ID.
+select employee_id,first_name,last_name,job_id from employees
+where salary <
+(select salary from employees where job_id = 'MK_MAN');
+
+--18. From the following table, write a SQL query to find those employees whose salary 
+--is lower than that of employees whose job title is "MK_MAN". Exclude employees of
+--Job title ‘MK_MAN’. Return employee ID, first name, last name, job ID.
+select employee_id,first_name,last_name,job_id from employees
+where salary <
+(select salary from employees where job_id = 'MK_MAN') and job_id<> 'MK_MAN';
+
+--19. From the following table, write a SQL query to find those employees whose salary 
+--exceeds the salary of all those employees whose job title is "PU_MAN". 
+--Exclude job title ‘PU_MAN’. Return employee ID, first name, last name, job ID.
+select employee_id,first_name,last_name,job_id
+from employees  
+where salary >
+(select salary from employees where job_id= 'PU_MAN') and job_id<>'PU_MAN';
+
+
+--20. From the following table, write a SQL query to find those employees whose salaries are higher 
+--than the average for all departments. Return employee ID, first name, last name, job ID.
+
+with avg_salary_dept as (
+select avg(salary) as average_salary from employees group by department_id
+),
+max_sal_dept as(
+select max(average_salary) as max_sal from avg_salary_dept
+)
+select employee_id,first_name,last_name,job_id
+from employees 
+join max_sal_dept on salary > max_sal;
+
+
+--21. From the following table, write a  SQL query to check whether there are any employees 
+--with salaries exceeding 3700. Return first name, last name and department ID.
+
+select first_name,last_name,department_id
+from employees 
+where salary > 3700;
+
+--22. From the following table, write a  SQL query to calculate total salary of the departments 
+--where at least one employee works. Return department ID, total salary.
+
+select department_id,sum(salary) from employees group by department_id having count(*)>=1;
+
+--23. Write a query to display the employee id, name ( first name and last name ) and the job id column with a modified title SALESMAN 
+--for those employees whose job title is ST_MAN and DEVELOPER for whose job title is IT_PROG.
+
+select employee_id, first_name || ' ' || last_name as name,
+case when job_id = 'ST_MAN' then 'SALESMAN'
+when job_id='IT_PROG' then 'DEVELOPER'
+else job_id
+end as designation
+from employees;
+
+--24. Write a query to display the employee id, name ( first name and last name ), 
+--salary and the SalaryStatus column with a title HIGH and LOW respectively for those 
+--employees whose salary is more than and less than the average salary of all employees.
+
+with avg_salary as (
+select avg(salary) as average_salary from employees 
+)
+select employee_id, first_name||' '||last_name as name,salary,
+case when salary>average_salary then 'HIGH'
+else 'LOW' end as SalaryStatus
+from employees,avg_salary;
+
+--25. Write a query to display the employee id, name ( first name and last name ), 
+--SalaryDrawn, AvgCompare (salary - the average salary of all employees) and the 
+--SalaryStatus column with a title HIGH and LOW respectively for those employees
+--whose salary is more than and less than the average salary of all employees.
+with avg_salary as (
+select avg(salary) as average_salary from employees)
+select employee_id,first_name||' '||last_name as name,salary as SalaryDrawn,
+round(salary-average_salary,2) as AvgCompare,
+case when salary>average_salary then 'HIGH'
+else 'LOW' end as SalaryStatus
+from employees,avg_salary;
+
+
+--26. From the following table, write a  SQL query to find 
+--all those departments where at least one employee is employed. Return department name.
+
+select d.department_name
+from employees e
+inner join departments d
+on e.department_id=d.department_id
+group by d.department_name having count(*)>=1;
+
+--27. From the following tables, write a  SQL query to find employees who 
+--work in departments located in the United Kingdom. Return first name.
+select first_name
+from employees where department_id in
+(select department_id from locations l
+inner join departments d 
+on l.location_id=d.location_id
+where country_id='UK');
+
+--28. From the following table, write a  SQL query to find out which employees are 
+--earning more than the average salary and who work in any of the IT departments. Return last name.
+with avg_salary as (
+select avg(salary) as average_salary from employees)
+select e.last_name
+from employees e
+join departments d on e.department_id=d.department_id
+join avg_salary avge on
+e.salary>avge.average_salary
+and department_name = 'IT';
+
+
+--29. From the following table, write a  SQL query to find all those employees who 
+--earn more than an employee whose last name is 'Ozer'. 
+--Sort the result in ascending order by last name. Return first name, last name and salary.
+select first_name,last_name,salary
+from employees 
+where salary >
+(select salary
+from employees where last_name ='Ozer')
+order by last_name asc;
+
+--30. From the following tables, write a  SQL query find the employees who report 
+--to a manager based in the United States. Return first name, last name.
+
+SELECT e1.first_name, e1.last_name 
+FROM employees e1
+JOIN employees e2 ON e1.manager_id = e2.employee_id
+JOIN departments d ON e2.department_id = d.department_id
+JOIN locations l ON d.location_id = l.location_id
+WHERE l.country_id = 'US';
+
+
