@@ -1,0 +1,120 @@
+    --31. From the following tables, write a  SQL query to find those employees whose salaries 
+--exceed 50% of their department's total salary bill. Return first name, last name.
+
+with calc as (select department_id, sum(salary)/2 as half_total_salary
+from employees  
+group by department_id)
+select e.first_name,e.last_name
+from employees e
+join calc c on e.department_id=c.department_id and e.salary>c.half_total_salary;
+
+--32. From the following tables, write a  SQL query 
+--to find those employees who are managers. Return all the fields of employees table.
+select * from employees where employee_id in (
+select distinct manager_id from employees where manager_id is not null);
+
+--33. From the following table, write a  SQL query to find those employees who 
+--manage a department. Return all the fields of employees table.
+
+select * from employees
+where employee_id in (select distinct manager_id from employees);
+
+--34. From the following table, write a  SQL query to search for employees who receive such a salary, 
+--which is the maximum salary for salaried employees, hired between january 1 1994 and December 31st, 1994. 
+--Return employee ID, first name, last name, salary, department name and city.
+select e.employee_id,e.first_name,e.last_name,e.salary,d.department_name,l.city
+from employees e
+inner join departments d on e.department_id=d.department_id
+inner join locations l on d.location_id=l.location_id
+where salary >
+(SELECT max(salary)
+FROM employees 
+WHERE hire_date BETWEEN TO_DATE('01/01/1994', 'DD/MM/YYYY') AND TO_DATE('31/12/1994', 'DD/MM/YYYY'));
+
+--35. From the following tables, write a  SQL query to find those departments that are 
+--located in the city of London. Return department ID, department name.
+SELECT d.department_id, d.department_name 
+FROM departments d
+JOIN locations l ON d.location_id = l.location_id
+WHERE l.city = 'London';
+
+--36. From the following table, write a SQL query to find those employees
+--who earn more than the average salary. Sort the result-set in descending 
+--order by salary. Return first name, last name, salary, and department ID.
+
+with avg_salary as (
+select avg(salary) as average_salary from employees)
+select first_name,last_name,salary,department_id
+from employees,avg_salary
+where salary>average_salary
+order by salary desc;
+
+--37. From the following table, write a  SQL query to find those employees who earn more than the maximum 
+--salary for a department of ID 40. Return first name, last name and department ID.
+select first_name,last_name,department_id
+from employees
+where salary >
+(select max(salary) from employees where department_id=40);
+
+--38. From the following table, write a  SQL query to find departments for a particular location. 
+--The location matches the location of the department of ID 30. Return department name and department ID.
+select d.department_name,d.department_id
+from departments d
+join locations l on d.location_id=l.location_id
+where l.location_id = 
+(select location_id from departments where department_id=30);
+
+--39. From the following table, write a SQL query to find employees who work for the department 
+--in which employee ID 201 is employed. Return first name, last name, salary, and department ID.
+select first_name,last_name,salary,department_id
+from employees 
+where department_id =
+(select department_id from employees where employee_id=201);
+
+--40. From the following table, write a  SQL query to find those employees 
+--whose salary matches that of the employee who works in department ID 40. 
+--Return first name, last name, salary, and department ID.
+select first_name,last_name,salary,department_id
+from employees
+where salary =
+(select salary from employees where department_id=40);
+
+--41. From the following table, write a  SQL query to find those employees who work in the department 
+--'Marketing'. Return first name, last name and department ID.
+
+select e.first_name,e.last_name,e.department_id
+from employees e
+join departments d 
+on e.department_id=d.department_id and department_name='Marketing';
+
+--42. From the following table, write a  SQL query to find those employees who earn more than the minimum salary of a 
+--department of ID 40. Return first name, last name, salary, and department ID.;
+select first_name,last_name,salary,department_id
+from employees 
+where salary >
+(select min(salary) from employees where department_id=40);
+
+--43. From the following table, write a  SQL query to find those employees who 
+--joined after the employee whose ID is 165. Return first name, last name and hire date.
+select first_name,last_name,hire_date
+from employees
+where hire_date >
+(select hire_date from employees where employee_id=165);
+
+--44. From the following table, write a  SQL query to find those employees who 
+--earn less than the minimum salary of a department of ID 70. 
+--Return first name, last name, salary, and department ID.
+select first_name,last_name,salary,department_id
+from employees
+where salary <
+(select min(salary) from employees where department_id=70);
+
+--45. From the following table, write a  SQL query to find those employees who earn less than the average salary and work at the
+--department where Laura (first name) is employed. Return first name, last name, salary, and department ID.
+with avg_salary as (
+select avg(salary) as average_salary from employees)
+select first_name,last_name,salary,department_id
+from employees,avg_salary
+where salary<average_salary and department_id = (select department_id from employees where first_name='Laura');
+
+
